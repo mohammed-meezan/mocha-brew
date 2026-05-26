@@ -305,7 +305,7 @@ section {
 #scroll-section {
     position: relative;
     width: 100%;
-    height: 400vh; /* Canvas animation duration */
+    height: 300vh; /* Canvas animation duration */
     background-color: var(--color-bg-base);
 }
 
@@ -518,6 +518,10 @@ section {
 /* ==========================================================================
    Interactive Menu / Customizer
    ========================================================================== */
+
+#menu {
+    padding-top: 60px;
+}
 
 .customizer-container {
     display: grid;
