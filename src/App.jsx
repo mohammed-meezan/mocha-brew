@@ -238,6 +238,18 @@ export default function App() {
   // --- NEW FEATURES STATES ---
 
   // Store Locator States
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 1024) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('theme') || 'dark';
   });
@@ -901,36 +913,62 @@ export default function App() {
       )}
 
       {/* Sticky Glass Navbar */}
-      <header className="glass-nav">
+      <header className={`glass-nav ${mobileMenuOpen ? 'mobile-nav-open' : ''}`}>
         <div className="nav-container">
-          <a href="#" className="nav-logo">
+          <a href="#" className="nav-logo" onClick={() => setMobileMenuOpen(false)}>
             <span className="logo-gold">Mocha</span> Brew
           </a>
-          <nav className="nav-links">
+          <nav className={`nav-links ${mobileMenuOpen ? 'open' : ''}`}>
             <a
               href="#scroll-section"
               className={`nav-link ${activeSection === 'scroll-section' ? 'active' : ''}`}
+              onClick={() => setMobileMenuOpen(false)}
             >Home</a>
             <a
               href="#menu"
               className={`nav-link ${activeSection === 'menu' ? 'active' : ''}`}
+              onClick={() => setMobileMenuOpen(false)}
             >Our Menu</a>
             <a
               href="#reviews"
               className={`nav-link ${activeSection === 'reviews' ? 'active' : ''}`}
+              onClick={() => setMobileMenuOpen(false)}
             >Reviews</a>
             <a
               href="#locator"
               className={`nav-link ${activeSection === 'locator' ? 'active' : ''}`}
+              onClick={() => setMobileMenuOpen(false)}
             >Store Locator</a>
             <a
               href="#timeline"
               className={`nav-link ${activeSection === 'timeline' ? 'active' : ''}`}
+              onClick={() => setMobileMenuOpen(false)}
             >Our Journey</a>
             <a
               href="#newsletter"
               className={`nav-link ${activeSection === 'newsletter' ? 'active' : ''}`}
+              onClick={() => setMobileMenuOpen(false)}
             >Subscribe</a>
+
+            {/* Mobile-only action buttons inside menu drawer */}
+            <div className="mobile-menu-actions">
+              <button 
+                className="quiz-trigger-btn" 
+                onClick={() => { 
+                  setMobileMenuOpen(false); 
+                  setQuizOpen(true); 
+                }}
+              >
+                Find Your Brew 🔍
+              </button>
+              <a 
+                href="#menu" 
+                className="nav-cta" 
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Customize Brew
+              </a>
+            </div>
           </nav>
           <div className="nav-actions">
             <button 
@@ -950,9 +988,21 @@ export default function App() {
                 </>
               )}
             </button>
-            <button className="quiz-trigger-btn" onClick={() => setQuizOpen(true)}>Find Your Brew 🔍</button>
-            <a href="#menu" className="nav-cta">Customize Brew</a>
+            <button className="quiz-trigger-btn desktop-only-btn" onClick={() => setQuizOpen(true)}>Find Your Brew 🔍</button>
+            <a href="#menu" className="nav-cta desktop-only-btn">Customize Brew</a>
           </div>
+
+          {/* Hamburger toggle button for mobile/tablets */}
+          <button 
+            className={`nav-hamburger ${mobileMenuOpen ? 'active' : ''}`} 
+            onClick={() => setMobileMenuOpen(prev => !prev)}
+            aria-label="Toggle Navigation Menu"
+            aria-expanded={mobileMenuOpen}
+          >
+            <span className="hamburger-line line-1"></span>
+            <span className="hamburger-line line-2"></span>
+            <span className="hamburger-line line-3"></span>
+          </button>
         </div>
       </header>
 

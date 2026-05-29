@@ -1238,33 +1238,180 @@ footer {
     color: var(--color-text-muted);
 }
 
+/* Desktop default: hide mobile menu actions & hamburger */
+.mobile-menu-actions {
+    display: none;
+}
+
+.nav-hamburger {
+    display: none;
+}
+
 /* ==========================================================================
    Responsive & Adaptive Media Queries
    ========================================================================== */
 
-@media (max-width: 968px) {
+@media (max-width: 1024px) {
     html {
         font-size: 15px;
     }
+
+    /* Show hamburger toggle button */
+    .nav-hamburger {
+        display: flex !important;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--color-border);
+        border-radius: 6px;
+        cursor: pointer;
+        padding: 10px;
+        z-index: 1010;
+        transition: var(--transition-smooth);
+    }
     
-    .nav-links {
-        display: none; /* Collapsed nav for clean mobile aesthetics */
+    .hamburger-line {
+        display: block;
+        width: 20px;
+        height: 2px;
+        background-color: var(--color-text-primary);
+        transition: var(--transition-smooth);
     }
 
+    /* Hamburger active morphing into X shape */
+    .nav-hamburger.active .line-1 {
+        transform: translateY(7px) rotate(45deg);
+    }
+    
+    .nav-hamburger.active .line-2 {
+        opacity: 0;
+    }
+    
+    .nav-hamburger.active .line-3 {
+        transform: translateY(-7px) rotate(-45deg);
+    }
+
+    /* Hide desktop actions buttons */
+    .desktop-only-btn {
+        display: none !important;
+    }
+
+    /* Collapsible Navigation Links drawer */
+    .nav-links {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: rgba(18, 11, 7, 0.95);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        padding: 40px 24px;
+        border-bottom: 1px solid var(--color-border);
+        gap: 20px;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: var(--transition-smooth);
+        z-index: 999;
+    }
+
+    [data-theme='light'] .nav-links {
+        background: rgba(253, 251, 247, 0.98);
+        box-shadow: 0 15px 30px rgba(44, 30, 21, 0.1);
+    }
+
+    .nav-links.open {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .nav-link {
+        font-size: 1.1rem;
+        padding: 10px 0;
+        width: 100%;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    
+    [data-theme='light'] .nav-link {
+        border-bottom-color: rgba(140, 114, 91, 0.06);
+    }
+
+    .nav-link::after {
+        display: none; /* Hide hover line effect on mobile */
+    }
+
+    /* Mobile menu actions inside drawer container */
+    .mobile-menu-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 15px;
+        width: 100%;
+    }
+
+    .mobile-menu-actions .quiz-trigger-btn,
+    .mobile-menu-actions .nav-cta {
+        width: 100%;
+        padding: 12px;
+        text-align: center;
+        justify-content: center;
+        display: block;
+    }
+
+    /* Stack components at 1024px Laptop breakpoint */
     .customizer-container {
         grid-template-columns: 1fr;
-        gap: 30px;
+        gap: 40px;
     }
     
     .cup-canvas-wrapper {
-        height: 250px;
+        height: 280px;
+    }
+}
+
+@media (max-width: 768px) {
+    .section-header h2 {
+        font-size: 2.2rem;
+    }
+
+    /* Fixed mobile text overlap with a glass card overlay over the canvas */
+    .scroll-text {
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -40%) !important;
+        max-width: 90% !important;
+        width: 420px !important;
+        text-align: center;
+        background: rgba(18, 11, 7, 0.78);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
     
-    .preview-cup {
-        width: 120px;
-        height: 160px;
+    [data-theme='light'] .scroll-text {
+        background: rgba(253, 251, 247, 0.88);
+        border-color: rgba(140, 114, 91, 0.15);
+        box-shadow: 0 10px 30px rgba(44, 30, 21, 0.15);
     }
-    
+
+    .scroll-text.active {
+        transform: translate(-50%, -50%) !important;
+    }
+
+    /* Stack timeline items cleanly to left */
     .timeline-line {
         left: 20px;
     }
@@ -1288,37 +1435,30 @@ footer {
         grid-template-columns: 1fr 1fr;
         gap: 30px;
     }
-
-    /* Fixed mobile text overlap with a glass card overlay */
-    .scroll-text {
-        left: 50% !important;
-        top: 50% !important;
-        transform: translate(-50%, -40%) !important;
-        max-width: 90% !important;
-        width: 420px !important;
-        text-align: center;
-        background: rgba(18, 11, 7, 0.75);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        padding: 24px;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    }
-    .scroll-text.active {
-        transform: translate(-50%, -50%) !important;
-    }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 480px) {
+    html {
+        font-size: 14px;
+    }
+
     .section-header h2 {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
 
     .scroll-text h2 {
-        font-size: 2.1rem;
+        font-size: 1.8rem;
     }
-    
+
+    .scroll-text p {
+        font-size: 0.95rem;
+    }
+
+    .scroll-text {
+        width: 92% !important;
+        padding: 20px 15px;
+    }
+
     .newsletter-card {
         padding: 30px 15px;
     }
@@ -1336,15 +1476,43 @@ footer {
         border: 1px solid var(--color-border);
         border-radius: 8px;
         width: 100%;
+        padding: 12px;
+    }
+
+    [data-theme='light'] .subscribe-form input {
+        background: #ffffff;
     }
     
     .submit-btn {
         width: 100%;
         justify-content: center;
+        padding: 12px;
     }
     
     .footer-container {
         grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .footer-brand {
+        align-items: center;
+    }
+
+    .social-links {
+        justify-content: center;
+    }
+
+    .preview-cup {
+        width: 120px;
+        height: 160px;
+    }
+
+    .toggle-pills {
+        grid-template-columns: 1fr 1fr; /* Stack customization pills into two columns */
+    }
+
+    .store-card-actions {
+        grid-template-columns: 1fr; /* Stack card buttons vertically on small screens */
     }
 }
 
