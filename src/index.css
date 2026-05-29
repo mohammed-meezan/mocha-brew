@@ -1368,7 +1368,14 @@ footer {
         display: block;
     }
 
-    /* Stack components at 1024px Laptop breakpoint */
+}
+
+@media (max-width: 768px) {
+    .section-header h2 {
+        font-size: 2.2rem;
+    }
+
+    /* Stack interactive customizer components below 768px */
     .customizer-container {
         grid-template-columns: 1fr;
         gap: 40px;
@@ -1376,12 +1383,6 @@ footer {
     
     .cup-canvas-wrapper {
         height: 280px;
-    }
-}
-
-@media (max-width: 768px) {
-    .section-header h2 {
-        font-size: 2.2rem;
     }
 
     /* Fixed mobile text overlap with a glass card overlay over the canvas */
@@ -2864,11 +2865,27 @@ footer {
     align-items: stretch;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 768px) {
     .locator-container {
         grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .locator-sidebar {
+        max-height: 480px; /* Keep sidebar compact on mobile so map is visible below */
+    }
+
+    .locator-map-panel, .locator-map-frame {
+        min-height: 350px !important;
+        height: 350px !important;
+    }
+
+    .store-card-actions {
+        grid-template-columns: 1fr; /* Stack card buttons vertically on mobile */
+        gap: 8px;
     }
 }
+
 
 .locator-sidebar {
     display: flex;
