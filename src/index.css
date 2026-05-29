@@ -34,6 +34,34 @@
     --transition-quick: all 0.2s ease;
 }
 
+[data-theme='light'] {
+    --color-bg-base: #fdfbf7;          /* Warm linen cream */
+    --color-bg-surface: #f7f3eb;       /* Soft milky beige */
+    --color-bg-card: rgba(247, 243, 235, 0.85); /* Glassmorphic latte card */
+    --color-border: rgba(140, 114, 91, 0.18);   /* Warm brown border */
+    
+    --color-gold: #ab7a16;             /* Deeper gold for readability */
+    --color-gold-hover: #8f6412;        /* Darker gold hover */
+    --color-gold-glow: rgba(171, 122, 22, 0.15);
+    
+    --color-text-primary: #2c1e15;     /* Dark espresso black */
+    --color-text-secondary: #6c5643;   /* Roasted bean brown */
+    --color-text-muted: #9a8c7b;       /* Soft latte froth grey */
+}
+
+/* Force preloader and cinematic scroll hero to remain in dark mode colors */
+#preloader, #scroll-section {
+    --color-bg-base: #120b07;
+    --color-bg-surface: #1a100a;
+    --color-text-primary: #f5ebe0;
+    --color-text-secondary: #c9b097;
+    --color-border: rgba(197, 168, 128, 0.15);
+    --color-bg-card: rgba(29, 18, 11, 0.65);
+    --color-gold: #c59b27;
+    --color-gold-hover: #e6c567;
+    --color-gold-glow: rgba(197, 155, 39, 0.3);
+}
+
 /* Base resets and scrollbar styling */
 * {
     margin: 0;
@@ -2654,5 +2682,906 @@ footer {
     0% { transform: translateX(-120%); opacity: 0; }
     100% { transform: translateX(0); opacity: 1; }
 }
+
+/* ==========================================================================
+   Store Locator Section
+   ========================================================================== */
+
+.locator-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 40px;
+    align-items: stretch;
+}
+
+@media (max-width: 992px) {
+    .locator-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.locator-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-height: 700px;
+}
+
+.locator-search-wrapper {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+@media (max-width: 576px) {
+    .locator-search-wrapper {
+        flex-direction: column;
+    }
+}
+
+.search-input-container {
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+}
+
+.locator-search-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 12px 40px 12px 40px;
+    color: var(--color-text-primary);
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: var(--transition-quick);
+}
+
+.locator-search-input:focus {
+    outline: none;
+    border-color: var(--color-gold);
+    box-shadow: 0 0 10px rgba(197, 155, 39, 0.15);
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.search-clear-btn {
+    position: absolute;
+    right: 15px;
+    background: none;
+    border: none;
+    color: var(--color-text-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.search-clear-btn:hover {
+    color: var(--color-text-primary);
+}
+
+.locator-gps-btn {
+    background: rgba(197, 155, 39, 0.08);
+    border: 1px solid var(--color-gold);
+    color: var(--color-gold);
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.locator-gps-btn:hover:not(:disabled) {
+    background: var(--color-gold);
+    color: var(--color-bg-base);
+    box-shadow: 0 4px 15px var(--color-gold-glow);
+}
+
+.locator-gps-btn.active {
+    background: rgba(197, 155, 39, 0.25);
+    border-color: var(--color-gold-hover);
+    color: var(--color-text-primary);
+}
+
+.locator-gps-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Location Status Bar */
+.location-status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(197, 155, 39, 0.06);
+    border: 1px dashed rgba(197, 155, 39, 0.25);
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+.clear-coords-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-gold);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.clear-coords-btn:hover {
+    color: var(--color-gold-hover);
+}
+
+/* Filters */
+.locator-filters {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+}
+
+.locator-filters::-webkit-scrollbar {
+    height: 4px;
+}
+
+.filter-pill-btn {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: var(--transition-quick);
+    white-space: nowrap;
+}
+
+.filter-pill-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(197, 155, 39, 0.3);
+    color: var(--color-text-primary);
+}
+
+.filter-pill-btn.active {
+    background: rgba(197, 155, 39, 0.12);
+    border-color: var(--color-gold);
+    color: var(--color-gold);
+    box-shadow: 0 2px 8px rgba(197, 155, 39, 0.1);
+}
+
+/* Store Cards List */
+.locator-store-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-right: 5px;
+    scrollbar-width: thin;
+}
+
+.locator-store-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.locator-store-card {
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 20px;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.locator-store-card:hover {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(197, 155, 39, 0.3);
+    transform: translateY(-2px);
+}
+
+.locator-store-card.active {
+    background: rgba(197, 155, 39, 0.05);
+    border-color: var(--color-gold);
+    box-shadow: 0 4px 15px rgba(197, 155, 39, 0.08);
+}
+
+.store-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.store-card-name {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    font-family: var(--font-heading);
+}
+
+.store-card-distance {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-gold);
+    background: rgba(197, 155, 39, 0.08);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.store-card-status-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.85rem;
+}
+
+.status-badge {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+
+.status-badge.open {
+    background: rgba(40, 167, 69, 0.15);
+    color: #2eb85c;
+    border: 1px solid rgba(40, 167, 69, 0.25);
+}
+
+.status-badge.closed {
+    background: rgba(220, 53, 69, 0.15);
+    color: #e55353;
+    border: 1px solid rgba(220, 53, 69, 0.25);
+}
+
+.status-badge.mini {
+    padding: 1px 6px;
+    font-size: 0.65rem;
+}
+
+.store-hours-text {
+    color: var(--color-text-secondary);
+}
+
+.store-address-text, .store-phone-text {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+.store-amenities-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 4px 0;
+}
+
+.amenity-badge {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+}
+
+.store-card-actions {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr 1.2fr;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.store-action-btn {
+    padding: 8px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: var(--transition-quick);
+    font-family: inherit;
+}
+
+.store-action-btn.select-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+}
+
+.store-action-btn.select-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.store-action-btn.directions-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.store-action-btn.directions-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.store-action-btn.order-pickup-btn {
+    background: var(--color-gold);
+    border: 1px solid var(--color-gold);
+    color: var(--color-bg-base);
+}
+
+.store-action-btn.order-pickup-btn:hover {
+    background: var(--color-gold-hover);
+    box-shadow: 0 2px 10px var(--color-gold-glow);
+}
+
+/* Empty State */
+.locator-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--color-text-secondary);
+}
+
+.empty-icon {
+    font-size: 2.5rem;
+    opacity: 0.4;
+    animation: cup-float 3s ease-in-out infinite;
+}
+
+.reset-search-btn {
+    background: transparent;
+    border: 1px solid var(--color-gold);
+    color: var(--color-gold);
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-quick);
+}
+
+.reset-search-btn:hover {
+    background: var(--color-gold);
+    color: var(--color-bg-base);
+}
+
+/* ==========================================================================
+   Interactive Blueprint Map Layout
+   ========================================================================== */
+
+.locator-map-panel {
+    min-height: 500px;
+    position: relative;
+    padding: 0 !important;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.locator-map-frame {
+    width: 100%;
+    height: 100%;
+    min-height: 500px;
+    background-color: #0b0604;
+    position: relative;
+}
+
+.blueprint-svg-map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Map Markers */
+.map-marker-pin {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    transform: translate(-50%, -50%);
+    outline: none;
+}
+
+.marker-body {
+    width: 32px;
+    height: 32px;
+    background: var(--color-bg-surface);
+    border: 2px solid var(--color-border);
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    transition: var(--transition-smooth);
+}
+
+/* Coffee icon inside marker should rotate back to sit straight */
+.marker-body::before {
+    content: '☕';
+    transform: rotate(45deg);
+    font-size: 0.8rem;
+}
+
+.map-marker-pin.open .marker-body {
+    border-color: #2eb85c;
+    color: #2eb85c;
+}
+
+.map-marker-pin.closed .marker-body {
+    border-color: #e55353;
+    color: #e55353;
+}
+
+.map-marker-pin.active .marker-body {
+    background: var(--color-gold);
+    border-color: var(--color-gold-hover);
+    color: var(--color-bg-base);
+    transform: translate(-5%, -15%) rotate(-45deg) scale(1.15);
+    box-shadow: 0 8px 20px var(--color-gold-glow);
+}
+
+.map-marker-pin.active .marker-body::before {
+    content: '☕';
+    color: var(--color-bg-base);
+}
+
+/* Pulsing gold marker halo */
+.marker-ping {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--color-gold);
+    opacity: 0;
+    pointer-events: none;
+    transition: var(--transition-smooth);
+}
+
+.map-marker-pin.active .marker-ping {
+    animation: marker-glow-pulse 2s conic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+@keyframes marker-glow-pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0.6);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* User Simulated Marker Pin */
+.user-map-marker {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    z-index: 12;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.user-marker-dot {
+    width: 24px;
+    height: 24px;
+    background: #007bff;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: white;
+}
+
+.user-marker-pulse {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(0, 123, 255, 0.3);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: marker-glow-pulse 2s ease-out infinite;
+}
+
+/* Radar Scan Visuals */
+.map-radar-scanner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(18, 11, 7, 0.2);
+    z-index: 15;
+    pointer-events: none;
+}
+
+.radar-sweep {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background: conic-gradient(from 0deg, rgba(197, 155, 39, 0.2) 0deg, rgba(197, 155, 39, 0.05) 90deg, transparent 180deg);
+    animation: radar-spin 3s linear infinite;
+    transform-origin: center center;
+}
+
+@keyframes radar-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Floating Info Card over Map */
+.map-floating-details-card {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    z-index: 20;
+    padding: 20px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+}
+
+.float-card-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    font-family: var(--font-heading);
+    margin-right: 20px;
+}
+
+.float-card-hours, .float-card-address, .float-card-phone {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+}
+
+.float-card-order-btn {
+    background: var(--color-gold);
+    border: none;
+    color: var(--color-bg-base);
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 5px;
+    transition: var(--transition-quick);
+    text-align: center;
+}
+
+.float-card-order-btn:hover {
+    background: var(--color-gold-hover);
+    box-shadow: 0 4px 12px var(--color-gold-glow);
+}
+
+.card-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    color: var(--color-text-muted);
+    font-size: 1.3rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: var(--transition-quick);
+}
+
+.card-close-btn:hover {
+    color: var(--color-text-primary);
+}
+
+/* Additional cart summary pickup item style */
+.cart-pickup-address-item {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    padding-left: 20px;
+    margin-top: -6px;
+    list-style-type: none;
+}
+
+/* ==========================================================================
+   Theme Toggle Button Styles & Mode Overrides
+   ========================================================================== */
+
+.theme-toggle-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.theme-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--color-text-primary);
+    border-color: var(--color-gold);
+    transform: translateY(-1px);
+}
+
+.theme-toggle-icon {
+    font-size: 1rem;
+    transition: transform 0.5s ease;
+}
+
+.theme-toggle-btn:hover .theme-toggle-icon {
+    transform: rotate(20deg);
+}
+
+/* Light mode overrides for specific elements to ensure premium contrast */
+[data-theme='light'] {
+    /* Main body background */
+    background-color: var(--color-bg-base);
+    color: var(--color-text-primary);
+}
+
+/* Glassmorphic Nav in Light mode */
+[data-theme='light'] .glass-nav {
+    background: rgba(253, 251, 247, 0.75);
+    border-bottom: 1px solid rgba(140, 114, 91, 0.1);
+}
+
+[data-theme='light'] .nav-link {
+    color: var(--color-text-secondary);
+}
+
+[data-theme='light'] .nav-link:hover, 
+[data-theme='light'] .nav-link.active {
+    color: var(--color-text-primary);
+}
+
+/* Customizer Toggle Pills in Light mode */
+[data-theme='light'] .toggle-pills {
+    background: rgba(140, 114, 91, 0.05);
+    border-color: rgba(140, 114, 91, 0.08);
+}
+
+[data-theme='light'] .pill-btn.active {
+    background: var(--color-bg-base);
+    border-color: var(--color-gold);
+    box-shadow: 0 2px 6px rgba(140, 114, 91, 0.1);
+}
+
+/* Interactive Roasting bean display background */
+[data-theme='light'] .roast-visualizer {
+    background: rgba(140, 114, 91, 0.04);
+    border-color: rgba(140, 114, 91, 0.08);
+}
+
+[data-theme='light'] .roast-range-slider {
+    background: rgba(140, 114, 91, 0.15);
+}
+
+/* Form Inputs in Light Mode */
+[data-theme='light'] input[type="text"],
+[data-theme='light'] input[type="email"],
+[data-theme='light'] select,
+[data-theme='light'] textarea {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(140, 114, 91, 0.25);
+    color: var(--color-text-primary);
+}
+
+[data-theme='light'] input[type="text"]:focus,
+[data-theme='light'] input[type="email"]:focus,
+[data-theme='light'] select:focus,
+[data-theme='light'] textarea:focus {
+    background: #ffffff;
+    border-color: var(--color-gold);
+    box-shadow: 0 0 10px var(--color-gold-glow);
+}
+
+/* Reviews Summary in Light mode */
+[data-theme='light'] .rating-bars .bar-track {
+    background: rgba(140, 114, 91, 0.08);
+}
+
+[data-theme='light'] .rating-summary {
+    border-right: 1px solid rgba(140, 114, 91, 0.12);
+}
+
+@media (max-width: 768px) {
+    [data-theme='light'] .rating-summary {
+        border-right: none;
+        border-bottom: 1px solid rgba(140, 114, 91, 0.12);
+    }
+}
+
+/* Review Cards icons & badges */
+[data-theme='light'] .review-card-header .user-avatar {
+    background: rgba(171, 122, 22, 0.1);
+    color: var(--color-gold);
+}
+
+[data-theme='light'] .verification-badge {
+    color: #218838;
+    background: rgba(40, 167, 69, 0.08);
+}
+
+/* Timeline vertical line */
+[data-theme='light'] .timeline-line {
+    background: linear-gradient(to bottom, transparent, rgba(140, 114, 91, 0.2) 10%, rgba(140, 114, 91, 0.2) 90%, transparent);
+}
+
+[data-theme='light'] .timeline-node {
+    background: var(--color-bg-surface);
+    border-color: var(--color-border);
+    color: var(--color-gold);
+    box-shadow: 0 0 0 6px var(--color-bg-base);
+}
+
+[data-theme='light'] .timeline-card-wrapper:hover .timeline-node {
+    background: var(--color-gold);
+    color: var(--color-bg-base);
+    box-shadow: 0 0 0 6px var(--color-bg-base), 0 0 15px var(--color-gold-glow);
+}
+
+/* Map Blueprint adaptation to beautiful cream vintage parchment map */
+[data-theme='light'] .locator-map-frame {
+    background-color: #faf6eb;
+}
+
+[data-theme='light'] .blueprint-svg-map rect {
+    fill: url(#light-blueprint-grid);
+}
+
+/* Add grid pattern for light theme in svg using stylesheet override */
+[data-theme='light'] #blueprint-grid path {
+    stroke: rgba(140, 114, 91, 0.08);
+}
+
+[data-theme='light'] .blueprint-svg-map path {
+    fill: rgba(171, 122, 22, 0.06);
+    stroke: rgba(171, 122, 22, 0.18);
+}
+
+[data-theme='light'] .blueprint-svg-map line {
+    stroke: rgba(140, 114, 91, 0.12);
+}
+
+[data-theme='light'] .map-marker-pin .marker-body {
+    background: #ffffff;
+    border-color: rgba(140, 114, 91, 0.25);
+    color: var(--color-text-secondary);
+}
+
+[data-theme='light'] .map-marker-pin.open .marker-body {
+    border-color: #28a745;
+    color: #28a745;
+}
+
+[data-theme='light'] .map-marker-pin.closed .marker-body {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+[data-theme='light'] .map-marker-pin.active .marker-body {
+    background: var(--color-gold);
+    border-color: var(--color-gold-hover);
+    color: #ffffff;
+}
+
+[data-theme='light'] .map-marker-pin.active .marker-body::before {
+    color: #ffffff;
+}
+
+/* Drawers and Modals */
+[data-theme='light'] .cart-drawer,
+[data-theme='light'] .quiz-card,
+[data-theme='light'] .razorpay-modal {
+    background: var(--color-bg-card);
+    border-color: var(--color-border);
+    color: var(--color-text-primary);
+    box-shadow: 0 20px 50px rgba(44, 30, 21, 0.25);
+}
+
+[data-theme='light'] .cart-drawer-overlay,
+[data-theme='light'] .quiz-overlay,
+[data-theme='light'] .razorpay-overlay {
+    background: rgba(44, 30, 21, 0.4);
+    backdrop-filter: blur(8px);
+}
+
+/* Quiz option buttons in Light mode */
+[data-theme='light'] .quiz-option-btn {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: rgba(140, 114, 91, 0.2);
+    color: var(--color-text-primary);
+}
+
+[data-theme='light'] .quiz-option-btn:hover {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: var(--color-gold);
+    transform: translateY(-2px);
+}
+
+/* Progress ring in Light mode */
+[data-theme='light'] .progress-ring-bg {
+    stroke: rgba(140, 114, 91, 0.1);
+}
+
+/* Bank Selection lists */
+[data-theme='light'] .payment-method-btn {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: rgba(140, 114, 91, 0.2);
+    color: var(--color-text-primary);
+}
+
+[data-theme='light'] .payment-method-btn.active {
+    background: rgba(171, 122, 22, 0.08);
+    border-color: var(--color-gold);
+    color: var(--color-gold);
+}
+
+/* Razorpay mock styling in Light Mode */
+[data-theme='light'] .rzp-payment-option {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: rgba(140, 114, 91, 0.2);
+    color: var(--color-text-primary);
+}
+
+[data-theme='light'] .rzp-payment-option:hover {
+    background: #ffffff;
+    border-color: var(--color-gold);
+}
+
 
 

@@ -30,6 +30,108 @@ const RECIPES = {
   }
 };
 
+// Store data configuration
+const STORES = [
+  {
+    id: 'soho',
+    name: "Soho Coffee Sanctuary",
+    address: "44 Crema Ave, New York, NY 10012",
+    phone: "(212) 555-0144",
+    hours: "6:00 AM - 9:00 PM",
+    isOpen: true,
+    lat: 40.7233,
+    lng: -74.0030,
+    mapX: 45,
+    mapY: 65,
+    defaultDistance: 0.8,
+    amenities: ['wifi', 'roastery', 'outdoor']
+  },
+  {
+    id: 'downtown-seattle',
+    name: "Seattle Waterfront",
+    address: "99 Foam Blvd, Seattle, WA 98101",
+    phone: "(206) 555-0199",
+    hours: "6:00 AM - 8:00 PM",
+    isOpen: true,
+    lat: 47.6062,
+    lng: -122.3321,
+    mapX: 20,
+    mapY: 35,
+    defaultDistance: 2.4,
+    amenities: ['wifi', 'drive-thru', 'outdoor']
+  },
+  {
+    id: 'boston-fidi',
+    name: "Boston Financial District",
+    address: "12 Milk Rd, Boston, MA 02109",
+    phone: "(617) 555-0112",
+    hours: "6:30 AM - 7:30 PM",
+    isOpen: true,
+    lat: 42.3584,
+    lng: -71.0598,
+    mapX: 68,
+    mapY: 48,
+    defaultDistance: 3.5,
+    amenities: ['wifi', 'meeting-room']
+  },
+  {
+    id: 'back-bay',
+    name: "Back Bay Roasters",
+    address: "88 Espresso Lane, Boston, MA 02116",
+    phone: "(617) 555-0188",
+    hours: "7:00 AM - 9:00 PM",
+    isOpen: false,
+    lat: 42.3503,
+    lng: -71.0810,
+    mapX: 78,
+    mapY: 55,
+    defaultDistance: 4.1,
+    amenities: ['wifi', 'drive-thru']
+  },
+  {
+    id: 'sf-mission',
+    name: "Mission Cocoa Hub",
+    address: "302 Cocoa Blvd, San Francisco, CA 94110",
+    phone: "(415) 555-0302",
+    hours: "7:00 AM - 8:00 PM",
+    isOpen: true,
+    lat: 37.7599,
+    lng: -122.4148,
+    mapX: 15,
+    mapY: 78,
+    defaultDistance: 5.2,
+    amenities: ['wifi', 'outdoor']
+  },
+  {
+    id: 'la-santa-monica',
+    name: "Santa Monica Crema",
+    address: "15 Roaster Way, Los Angeles, CA 90401",
+    phone: "(310) 555-0015",
+    hours: "6:00 AM - 10:00 PM",
+    isOpen: true,
+    lat: 34.0194,
+    lng: -118.4912,
+    mapX: 32,
+    mapY: 82,
+    defaultDistance: 7.8,
+    amenities: ['wifi', 'drive-thru', 'outdoor', 'roastery']
+  }
+];
+
+// Helper to calculate distance in miles between coordinates
+const calculateHaversineDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 3958.8; // Earth's radius in miles
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
+
 export default function App() {
   // Preloader State
   const [loadedCount, setLoadedCount] = useState(0);
@@ -135,6 +237,29 @@ export default function App() {
 
   // --- NEW FEATURES STATES ---
 
+  // Store Locator States
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'dark';
+  });
+
+  const toggleTheme = () => {
+    setTheme(prev => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('theme', next);
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  const [selectedStore, setSelectedStore] = useState(STORES[0]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeLocatorFilter, setActiveLocatorFilter] = useState('all');
+  const [userCoords, setUserCoords] = useState(null);
+  const [isScanning, setIsScanning] = useState(false);
+
   // 1. Find Your Brew Quiz State
   const [quizOpen, setQuizOpen] = useState(false);
   const [quizStep, setQuizStep] = useState(1);
@@ -229,6 +354,84 @@ export default function App() {
     setTimeout(() => {
       setIsBlending(false);
     }, 2500);
+  };
+
+  // Store Locator Geolocation handlers
+  const handleGeolocate = () => {
+    setIsScanning(true);
+    
+    // Simulate high-tech scanning delay for visual experience
+    setTimeout(() => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            
+            // Check if user is too far from our stores, if so simulate a close distance
+            // for demonstration so they can see sorting and relative location in action.
+            let minDistance = Infinity;
+            STORES.forEach(store => {
+              const d = calculateHaversineDistance(latitude, longitude, store.lat, store.lng);
+              if (d < minDistance) minDistance = d;
+            });
+            
+            let coordsToUse = { lat: latitude, lng: longitude, isDemo: false };
+            
+            // If they are more than 500 miles away, use Boston as the demo location
+            if (minDistance > 500) {
+              coordsToUse = { lat: 42.3550, lng: -71.0700, isDemo: true };
+            }
+            
+            setUserCoords(coordsToUse);
+            setIsScanning(false);
+            
+            // Find and select the closest store automatically
+            let closest = null;
+            let closestDist = Infinity;
+            STORES.forEach(store => {
+              const d = calculateHaversineDistance(coordsToUse.lat, coordsToUse.lng, store.lat, store.lng);
+              if (d < closestDist) {
+                closestDist = d;
+                closest = store;
+              }
+            });
+            if (closest) {
+              setSelectedStore(closest);
+            }
+          },
+          (error) => {
+            console.warn("Geolocation failed. Simulating New York Soho location:", error);
+            const fallbackCoords = { lat: 40.7250, lng: -74.0040, isDemo: true };
+            setUserCoords(fallbackCoords);
+            setIsScanning(false);
+            
+            let closest = null;
+            let closestDist = Infinity;
+            STORES.forEach(store => {
+              const d = calculateHaversineDistance(fallbackCoords.lat, fallbackCoords.lng, store.lat, store.lng);
+              if (d < closestDist) {
+                closestDist = d;
+                closest = store;
+              }
+            });
+            if (closest) {
+              setSelectedStore(closest);
+            }
+          },
+          { enableHighAccuracy: true, timeout: 6000 }
+        );
+      } else {
+        const fallbackCoords = { lat: 40.7250, lng: -74.0040, isDemo: true };
+        setUserCoords(fallbackCoords);
+        setIsScanning(false);
+        setSelectedStore(STORES[0]);
+      }
+    }, 1500);
+  };
+
+  const handleClearLocation = () => {
+    setUserCoords(null);
+    setSelectedStore(STORES[0]);
   };
 
   // Toast Notification Queue Manager
@@ -517,7 +720,7 @@ export default function App() {
   // 3. Navigation link highlight observer
   useEffect(() => {
     const handleNavHighlight = () => {
-      const sections = ['scroll-section', 'menu', 'reviews', 'timeline', 'newsletter'];
+      const sections = ['scroll-section', 'menu', 'reviews', 'locator', 'timeline', 'newsletter'];
       let currentSec = 'scroll-section';
 
       for (const id of sections) {
@@ -541,6 +744,33 @@ export default function App() {
     setActiveRecipe(recipeId);
     setSettings({ ...RECIPES[recipeId].defaults });
   };
+
+  // Helper distance and store sorting logic
+  const getStoreDistance = (store) => {
+    if (userCoords) {
+      return calculateHaversineDistance(userCoords.lat, userCoords.lng, store.lat, store.lng);
+    }
+    return store.defaultDistance;
+  };
+
+  const sortedAndFilteredStores = STORES
+    .map(store => ({
+      ...store,
+      distance: getStoreDistance(store)
+    }))
+    .filter(store => {
+      const query = searchQuery.toLowerCase().trim();
+      const matchesSearch = query === '' || 
+        store.name.toLowerCase().includes(query) ||
+        store.address.toLowerCase().includes(query) ||
+        store.hours.toLowerCase().includes(query);
+      
+      if (!matchesSearch) return false;
+      if (activeLocatorFilter === 'all') return true;
+      if (activeLocatorFilter === 'open') return store.isOpen;
+      return store.amenities.includes(activeLocatorFilter);
+    })
+    .sort((a, b) => a.distance - b.distance);
 
   // 5. Customizer formula calculations
   const recipe = RECIPES[activeRecipe];
@@ -690,6 +920,10 @@ export default function App() {
               className={`nav-link ${activeSection === 'reviews' ? 'active' : ''}`}
             >Reviews</a>
             <a
+              href="#locator"
+              className={`nav-link ${activeSection === 'locator' ? 'active' : ''}`}
+            >Store Locator</a>
+            <a
               href="#timeline"
               className={`nav-link ${activeSection === 'timeline' ? 'active' : ''}`}
             >Our Journey</a>
@@ -699,6 +933,23 @@ export default function App() {
             >Subscribe</a>
           </nav>
           <div className="nav-actions">
+            <button 
+              className="theme-toggle-btn" 
+              onClick={toggleTheme} 
+              aria-label="Toggle Theme"
+            >
+              {theme === 'dark' ? (
+                <>
+                  <span className="theme-toggle-icon">☀️</span>
+                  <span className="theme-toggle-text">Light</span>
+                </>
+              ) : (
+                <>
+                  <span className="theme-toggle-icon">🌙</span>
+                  <span className="theme-toggle-text">Dark</span>
+                </>
+              )}
+            </button>
             <button className="quiz-trigger-btn" onClick={() => setQuizOpen(true)}>Find Your Brew 🔍</button>
             <a href="#menu" className="nav-cta">Customize Brew</a>
           </div>
@@ -1114,6 +1365,254 @@ export default function App() {
         </div>
       </section>
 
+      {/* Store Locator Section */}
+      <section id="locator" className="content-section">
+        <div className="section-header">
+          <span className="section-tag">Locate Us</span>
+          <h2>Find a Mocha Brew</h2>
+          <p>Discover our cozy coffee sanctuaries, find your nearest pick-up point, or check store hours and amenities.</p>
+        </div>
+
+        <div className="locator-container">
+          {/* Sidebar Area */}
+          <div className="locator-sidebar glass-card">
+            <div className="locator-search-wrapper">
+              <div className="search-input-container">
+                <span className="search-icon">🔍</span>
+                <input
+                  type="text"
+                  placeholder="Search by city, address or zip code..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="locator-search-input"
+                />
+                {searchQuery && (
+                  <button className="search-clear-btn" onClick={() => setSearchQuery('')}>
+                    &times;
+                  </button>
+                )}
+              </div>
+              
+              <button 
+                className={`locator-gps-btn ${userCoords ? 'active' : ''}`}
+                onClick={handleGeolocate}
+                disabled={isScanning}
+              >
+                <span className="gps-icon">🧭</span>
+                <span>{isScanning ? 'Scanning...' : userCoords ? 'Location Active' : 'Use My Location'}</span>
+              </button>
+            </div>
+
+            {userCoords && (
+              <div className="location-status-bar animate-fade">
+                <span>📍 Nearby stores sorted by distance {userCoords.isDemo && "(Demo Mode)"}</span>
+                <button className="clear-coords-btn" onClick={handleClearLocation}>
+                  Reset Location
+                </button>
+              </div>
+            )}
+
+            {/* Filters */}
+            <div className="locator-filters">
+              {[
+                { label: 'All Stores', val: 'all' },
+                { label: 'Open Now 🟢', val: 'open' },
+                { label: 'Free Wi-Fi 📶', val: 'wifi' },
+                { label: 'Drive-Thru 🚗', val: 'drive-thru' },
+                { label: 'Roastery 🪵', val: 'roastery' }
+              ].map(f => (
+                <button
+                  key={f.val}
+                  className={`filter-pill-btn ${activeLocatorFilter === f.val ? 'active' : ''}`}
+                  onClick={() => setActiveLocatorFilter(f.val)}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Stores List */}
+            <div className="locator-store-list">
+              {sortedAndFilteredStores.length > 0 ? (
+                sortedAndFilteredStores.map(store => {
+                  const isStoreSelected = selectedStore && selectedStore.id === store.id;
+                  return (
+                    <div 
+                      key={store.id} 
+                      className={`locator-store-card ${isStoreSelected ? 'active' : ''}`}
+                      onClick={() => setSelectedStore(store)}
+                    >
+                      <div className="store-card-header">
+                        <h3 className="store-card-name">{store.name}</h3>
+                        <span className="store-card-distance">
+                          {userCoords ? `${store.distance.toFixed(1)} mi` : `~${store.defaultDistance} mi`}
+                        </span>
+                      </div>
+
+                      <div className="store-card-status-row">
+                        <span className={`status-badge ${store.isOpen ? 'open' : 'closed'}`}>
+                          {store.isOpen ? 'Open Now' : 'Closed'}
+                        </span>
+                        <span className="store-hours-text">🕒 {store.hours}</span>
+                      </div>
+
+                      <p className="store-address-text">📍 {store.address}</p>
+                      <p className="store-phone-text">📞 {store.phone}</p>
+
+                      <div className="store-amenities-row">
+                        {store.amenities.map(a => {
+                          const iconMap = {
+                            'wifi': '📶 Wi-Fi',
+                            'drive-thru': '🚗 Drive-Thru',
+                            'outdoor': '🪵 Patio',
+                            'roastery': '☕ Roastery',
+                            'meeting-room': '🏢 Meeting'
+                          };
+                          return (
+                            <span key={a} className="amenity-badge">
+                              {iconMap[a] || a}
+                            </span>
+                          );
+                        })}
+                      </div>
+
+                      <div className="store-card-actions">
+                        <button 
+                          className="store-action-btn select-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedStore(store);
+                          }}
+                        >
+                          Show on Map
+                        </button>
+                        <a 
+                          className="store-action-btn directions-btn"
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.name + ' ' + store.address)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Directions ↗
+                        </a>
+                        <button 
+                          className="store-action-btn order-pickup-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedStore(store);
+                            handleOrder();
+                          }}
+                        >
+                          Order Pickup
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="locator-empty-state">
+                  <span className="empty-icon">☕</span>
+                  <p>No stores found matching your criteria.</p>
+                  <button className="reset-search-btn" onClick={() => { setSearchQuery(''); setActiveLocatorFilter('all'); }}>
+                    Clear Filters
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Interactive Map Panel */}
+          <div className="locator-map-panel glass-card">
+            <div className="locator-map-frame">
+              {/* Styled SVG Map Blueprint */}
+              <svg className="blueprint-svg-map" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <defs>
+                  <pattern id="blueprint-grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                    <path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(197, 168, 128, 0.04)" strokeWidth="0.5" />
+                  </pattern>
+                </defs>
+                <rect width="100" height="100" fill="url(#blueprint-grid)" />
+                
+                {/* Simulated River */}
+                <path 
+                  d="M -10,30 C 20,32 35,20 50,40 C 65,60 80,50 110,55 L 110,67 C 80,62 65,72 50,52 C 35,32 20,44 -10,42 Z" 
+                  fill="rgba(197, 155, 39, 0.05)" 
+                  stroke="rgba(197, 155, 39, 0.12)" 
+                  strokeWidth="0.5" 
+                />
+
+                {/* Simulated Roads/Avenues Grid */}
+                <line x1="0" y1="20" x2="100" y2="20" stroke="rgba(197, 168, 128, 0.08)" strokeWidth="0.8" strokeDasharray="1 1" />
+                <line x1="0" y1="50" x2="100" y2="50" stroke="rgba(197, 168, 128, 0.08)" strokeWidth="1" />
+                <line x1="0" y1="80" x2="100" y2="80" stroke="rgba(197, 168, 128, 0.08)" strokeWidth="0.8" strokeDasharray="1 1" />
+                
+                <line x1="15" y1="0" x2="15" y2="100" stroke="rgba(197, 168, 128, 0.08)" strokeWidth="0.8" strokeDasharray="1 1" />
+                <line x1="50" y1="0" x2="50" y2="100" stroke="rgba(197, 168, 128, 0.08)" strokeWidth="1.2" />
+                <line x1="85" y1="0" x2="85" y2="100" stroke="rgba(197, 168, 128, 0.08)" strokeWidth="0.8" strokeDasharray="1 1" />
+                
+                <path d="M 0,10 Q 40,40 100,90" fill="none" stroke="rgba(197, 168, 128, 0.05)" strokeWidth="1.5" />
+              </svg>
+
+              {/* Radar Scan Effect */}
+              {isScanning && (
+                <div className="map-radar-scanner">
+                  <div className="radar-sweep"></div>
+                </div>
+              )}
+
+              {/* Simulated User Pin */}
+              {userCoords && !isScanning && (
+                <div 
+                  className="user-map-marker"
+                  style={{ left: `50%`, top: `50%` }}
+                  title="Your Location (Simulated Center)"
+                >
+                  <div className="user-marker-pulse"></div>
+                  <div className="user-marker-dot">👤</div>
+                </div>
+              )}
+
+              {/* Store Map Markers */}
+              {!isScanning && sortedAndFilteredStores.map(store => {
+                const isSelected = selectedStore && selectedStore.id === store.id;
+                return (
+                  <button
+                    key={store.id}
+                    className={`map-marker-pin ${isSelected ? 'active' : ''} ${store.isOpen ? 'open' : 'closed'}`}
+                    style={{ left: `${store.mapX}%`, top: `${store.mapY}%` }}
+                    onClick={() => setSelectedStore(store)}
+                    title={store.name}
+                  >
+                    <div className="marker-ping"></div>
+                    <div className="marker-body">☕</div>
+                  </button>
+                );
+              })}
+
+              {/* Active Store Float Card */}
+              {selectedStore && !isScanning && (
+                <div className="map-floating-details-card glass-card animate-fade">
+                  <button className="card-close-btn" onClick={() => setSelectedStore(null)}>&times;</button>
+                  <h4 className="float-card-name">{selectedStore.name}</h4>
+                  <span className={`status-badge mini ${selectedStore.isOpen ? 'open' : 'closed'}`}>
+                    {selectedStore.isOpen ? 'Open' : 'Closed'}
+                  </span>
+                  <p className="float-card-hours">🕒 Hours: {selectedStore.hours}</p>
+                  <p className="float-card-address">📍 {selectedStore.address}</p>
+                  <p className="float-card-phone">📞 {selectedStore.phone}</p>
+                  <button 
+                    className="float-card-order-btn"
+                    onClick={() => handleOrder()}
+                  >
+                    Order Pickup Here
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Brand Journey Section */}
       <section id="timeline" className="content-section">
         <div className="section-header">
@@ -1402,6 +1901,10 @@ export default function App() {
                   <li><strong>Milk:</strong> {milkLabels[settings.milk]}</li>
                   <li><strong>Sweetness:</strong> {sweetnessLabels[settings.sweetness]}</li>
                   <li><strong>Temperature:</strong> {tempLabels[settings.temp]}</li>
+                  <li><strong>Pickup Location:</strong> {selectedStore ? selectedStore.name : 'Soho Coffee Sanctuary'}</li>
+                  <li className="cart-pickup-address-item">
+                    <small>📍 {selectedStore ? selectedStore.address : '44 Crema Ave, New York, NY 10012'}</small>
+                  </li>
                 </ul>
                 <div className="cart-price-tag">
                   <span>Total Due:</span>
